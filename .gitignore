@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+reports/
+.DS_Store
+profiles/*.yaml
+!profiles/.gitkeep

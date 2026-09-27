@@ -1,0 +1,159 @@
+# 2DoF Hareketli Koltuk — Tasarım Parametreleri
+#
+# BİRİMLER: uzunluk cm, açı derece, kütle kg, kuvvet N, tork N·m
+# Kod içinde SI'ya çevrilir; burada hep cm/derece yazılır.
+#
+# KOORDİNAT SİSTEMİ: x = sağ, y = yukarı, z = ileri (kullanıcının baktığı yön)
+# Orijin: alt plakanın ALT yüzeyinde, mafsalın tam altı.
+#
+# ÖNEMLİ: Bu dosya tanımdaki ORİJİNAL ölçülerle doludur ve hedeflerin bir kısmını
+# SAĞLAMAZ. Bu bilinçlidir — bkz. docs/FINDINGS.md. Düzeltme Faz 4 optimizasyonunda.
+#
+# Uzun biçim ile bir parametreyi kilitleyebilirsin (optimizasyonda değişmez):
+#   length_cm:
+#     value: 4.0
+#     locked: true
+#     confidence: OLCULDU
+#     note: "Mevcut krank, kumpasla ölçüldü"
+
+geometry:
+  base_plate:
+    size_cm: [46.0, 50.0]          # genişlik (x) × derinlik (z)
+    thickness_cm: 1.8
+    center_z_cm: 4.0               # merkezinin ileri-geri konumu
+
+  top_plate:
+    size_cm: [42.0, 42.0]
+    thickness_cm: 1.8
+    center_offset_z_cm: 3.0        # merkezi mafsalın kaç cm önünde
+    underside_above_gimbal_cm: 2.0 # alt yüzeyi mafsal merkezinin kaç cm üstünde
+
+  cushion:
+    size_cm: [40.0, 40.0]
+    thickness_cm: 4.0
+
+  gimbal:
+    position_cm: [0.0, 13.0, 0.0]  # dönme merkezi
+    outer_axis: pitch              # tabana bağlı eksen: pitch | roll
+
+  # Plaka çerçevesinde, MAFSALA GÖRE. x işareti taraf başına çevrilir (+sağ, -sol).
+  rod_attach_cm: [18.2, -0.5, 20.5]
+
+  # Motor mili merkezi. Mil x eksenine paraleldir.
+  motor_shaft_cm: [18.2, 7.0, 24.5]
+
+  crank:
+    length_cm: 4.0
+    neutral_offset_deg: 0.0        # 0 = nötrde tam yatay, arkaya bakıyor
+    thickness_cm: 1.2              # çarpışma hacmi için
+
+  rod:
+    length_cm: 5.5                 # rot başı merkezleri arası
+    diameter_cm: 1.2
+
+# Motorlar elde olduğunda kumpasla ölçülüp girilmeli — çarpışma analizi buna dayanıyor.
+hardware:
+  gearbox_box_cm: [6.0, 8.0, 7.0]  # redüktör kutusu [x, z, y]
+  motor_cylinder_diameter_cm: 6.4
+  motor_cylinder_length_cm: 13.0   # mile dik, arkaya uzanır
+  pot_bracket_cm: [4.0, 4.0, 2.0]
+  gimbal_post_diameter_cm: 5.0
+
+  # Mil ekseni (x) boyunca yerleşim. Krank, redüktör kutusunun DIŞINDA döner;
+  # kutuyu mil noktasına ortalamak krankı kutunun içinde döndürürdü.
+  shaft_protrusion_cm: 2.5         # kutunun dış yüzü ile krank düzlemi arası
+                                   # (motor silindiri Ø6,4 > kutu 6,0 olduğu için
+                                   #  kutunun yanından taşar; krank bunu aşmalı)
+  pot_offset_cm: 2.0               # pot braketi krank düzleminden ne kadar dışta
+
+  user_box_cm: [40.0, 30.0, 50.0]  # kullanıcı atalet kutusu [genişlik, derinlik, boy]
+
+mass:
+  user_kg: 120.0                   # tasarım yükü
+  user_sweep_kg: [60.0, 90.0, 120.0]
+  carried_fraction: 0.85           # koltuğun taşıdığı oran (ayaklar yerde/pedalda)
+  plate_assembly_kg: 8.0           # üst plaka + minder + braketler
+  plate_com_cm: [0.0, 3.0, 4.0]    # plaka çerçevesinde, mafsala göre
+
+  backrest_mode: fixed             # fixed = sırtlık sabit | tilting = koltuk da eğiliyor
+  backrest_follow_fraction: 0.60   # fixed modda plakayla dönen kullanıcı oranı
+  seat_kg: 12.0                    # tilting modda eklenen koltuk kütlesi
+  seat_com_cm: [0.0, 25.0, -5.0]   # tilting modda koltuğun AM'si
+
+  user_com_height_cm: 25.0         # minder ÜSTÜNDEN
+  user_com_fore_aft_cm: 0.0        # + = ileri
+  user_com_lateral_cm: 0.0         # + = sağ
+
+limits:
+  rod_end_misalign_deg: 12.0       # M10 küresel rot başı sapma limiti
+  gimbal_max_deg: 20.0             # kardan mafsalı açı limiti
+  deadpoint_margin_deg: 20.0       # transmisyon açısının 0/180'e asgari uzaklığı
+  clearance_min_cm: 1.0            # parçalar arası asgari boşluk
+  total_height_max_cm: 18.0        # alt plaka altı → minder üstü
+  pot:
+    mechanical_range_deg: 270.0    # tek turlu pot mekanik açısı
+    mount_offset_deg: 0.0          # elektriksel merkezin nötrden sapması
+
+stops:
+  # (x, z) konumlar. Ön takozlar motor gövdelerinden kaçınmak için içe alınmıştır
+  # (motorlar |x| = 15...21 cm bandını kaplıyor); arka takozlar motorların arkasında.
+  positions_cm: [[5.5, 18.0], [-5.5, 18.0], [18.0, -16.0], [-18.0, -16.0]]
+  # Takoz başına üst yüzey yüksekliği (±12° hedefine göre hesaplandı).
+  # Tek sayı verilirse hepsine uygulanır. Program devreye girme açısını raporlar.
+  top_height_cm: [10.07, 10.07, 7.78, 7.78]
+  size_cm: [4.0, 4.0]              # yatay kesit
+
+targets:
+  pitch_deg: 10.0
+  roll_deg: 10.0
+  combined_deg: [7.0, 7.0]
+  torque_safety_factor: 2.0
+
+# --- Faz 2'de emniyet katsayısı için gerekli; geri kalanı Faz 3 ---
+motor:
+  no_load_rpm: 55.0                # TAHMİNİ — ölç!
+  stall_torque_nm: 30.0            # TAHMİNİ — projenin kaderi bu sayıya bağlı, ÖLÇ!
+  stall_current_a: 20.0            # TAHMİNİ
+  no_load_current_a: 2.0           # TAHMİNİ
+  forward_efficiency: 0.50         # yalnızca motor tarafı verisinden türetirken kullanılır
+  reverse_efficiency: 0.0          # 0 = tam kendiliğinden kilitlenme (sonsuz vida)
+
+power:
+  supply_voltage_v: 24.0
+  supply_current_a: 14.6           # Meanwell LRS-350-24 sürekli
+  supply_peak_current_a: 17.5      # ~%120, kısa süreli
+  fuse_a: 20.0                     # sürücü başına
+
+# SMC3.ino görülmeden doldurulmayacak — varsayımla modellenmez.
+controller: {}
+
+collision:
+  samples: 16
+  exclude_pairs:
+    - [rod_right, crank_right]
+    - [rod_left, crank_left]
+    - [rod_right, top_plate]
+    - [rod_left, top_plate]
+    - [rod_right, cushion]
+    - [rod_left, cushion]
+    - [top_plate, cushion]
+    - [top_plate, gimbal_post]
+    - [cushion, user_body]
+    - [top_plate, user_body]
+    - [base_plate, gimbal_post]
+    - [base_plate, gearbox_right]
+    - [base_plate, gearbox_left]
+    - [base_plate, motor_right]
+    - [base_plate, motor_left]
+    - [base_plate, pot_right]
+    - [base_plate, pot_left]
+    - [base_plate, stop_0]
+    - [base_plate, stop_1]
+    - [base_plate, stop_2]
+    - [base_plate, stop_3]
+    - [gearbox_right, motor_right]
+    - [gearbox_left, motor_left]
+    - [gearbox_right, pot_right]
+    - [gearbox_left, pot_left]
+    - [motor_right, pot_right]
+    - [motor_left, pot_left]
