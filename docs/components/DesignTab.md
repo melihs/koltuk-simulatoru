@@ -13,8 +13,13 @@ veya çarpışan parçalar renk değiştirir. Profil kaydetme/yükleme ve karş�
 | `cfg` | `SeatConfig` | Evet | oturum durumundaki aktif profil | Düzenlenen yapılandırma |
 
 Parametre listesi `common.GROUPS` içinde bildirimsel olarak tanımlıdır (`Group` ve
-`Param` dataclass'ları): yol, etiket, birim, adım, yardım metni ve kilitlenebilir olup
-olmadığı. Yeni bir parametreyi arayüze eklemek için bu listeye bir satır yazmak yeterlidir.
+`Param` dataclass'ları): yol, etiket, birim, adım, yardım metni, kilitlenebilirlik ve
+liste parametreleri için **bileşen etiketleri**. Yeni bir parametreyi arayüze eklemek
+için bu listeye bir satır yazmak yeterlidir. Ayrıntı: [Common.md](Common.md).
+
+Bileşen etiketleri olmadan etiket yalnızca ilk bileşene düşerdi: "Mafsal yüksekliği (y)"
+yazan kutu aslında `x`'i düzenler, kullanıcı yüksekliği değiştirdiğini sanırken mafsalı
+yana kaydırırdı.
 
 Kullanıcı girdileri (widget):
 
@@ -24,7 +29,7 @@ Kullanıcı girdileri (widget):
 | Roll kaydırıcısı | −20 … +20 | derece | + = sağ yukarı |
 | Parametre alanları | grup bazlı | cm / derece / kg | [config.md](../files/config.md) şeması |
 | "Sabitle (elimde var)" | — | — | Parametreyi Faz 4 optimizasyonunda kilitler |
-| Profil adı | metin | — | `profiles/<ad>.yaml` |
+| Profil adı | metin | — | `profiles/<ad>.yaml`. Yalnızca `[\w-]`, en fazla 64 karakter — **yol ayracı kabul edilmez**: `../config` gibi bir ad proje kökündeki `config.yaml`'ı ezerdi |
 
 ## Çıkış
 
@@ -95,6 +100,22 @@ listelenir. Hedef bir açı girip "Yükseklikleri bu açıya göre hesapla" dü�
 `Mechanism.suggest_stop_heights_cm()` çağırır ve yükseklikleri yazar — takoz konumunu
 değiştirdikten sonra yüksekliği elle uydurmak gerekmez.
 
+### Profil paneli ve widget durumu
+
+Profiller `profiles/*.yaml` altına kaydedilir; "config.yaml'a yaz" ana yapılandırmayı
+günceller; "Başlangıç değerlerine dön" diskten yeniden yükler; "Karşılaştır"
+`config.diff()` çıktısını tablo olarak gösterir.
+
+Profil adı `[\w-]` ile sınırlıdır ve en fazla 64 karakterdir. **Yol ayracı kabul
+edilmez**: `../config` gibi bir ad, doğrulanmasaydı proje kökündeki `config.yaml`'ı
+ezerdi.
+
+> Yapılandırmayı değiştiren **her** yol `common.replace_config()`'ten geçer. Streamlit'te
+> `key` verilen bir widget'ın durumu kalıcıdır ve `value=` argümanını **ezer**; bu
+> fonksiyon bayat widget anahtarlarını silmeseydi "Profili yükle", "Başlangıç değerlerine
+> dön" ve "Yükseklikleri hesapla" düğmeleri **hiçbir şey yapmazdı** — başarı mesajı çıkar,
+> değer değişmezdi. `tests/test_app.py` üçünü de regresyon olarak kilitler.
+
 ## Sade dil kuralı
 
 Her parametre grubunun başında bir cümlelik açıklama, her belirsiz parametrenin yanında
@@ -125,5 +146,5 @@ with tabs[0]:
 ```
 
 ---
-Son Güncelleme: 2026-09-12
-Versiyon: 1.1.0
+Son Güncelleme: 2026-09-27
+Versiyon: 1.2.0

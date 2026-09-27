@@ -46,9 +46,10 @@ Tarayıcıda `http://localhost:8501` açılır. Windows ve macOS'ta aynı komut 
 Testler ve lint:
 
 ```bash
-uv run pytest -v                      # 153 test, ~60 saniye
+uv run pytest -v                      # 231 test, ~90 saniye
 uv run pytest -k regression -v        # bilinen tasarım sınırlarını doğrulayan testler
 uv run ruff check seatsim/ tests/ app.py
+uv run pytest --cov --cov-report=term  # satır kapsamı %94
 ```
 
 Kalite kontrol zinciri: `/quality-check`
@@ -168,5 +169,5 @@ optimizasyonu o ölçüye dokunmaz.
 Şema: [docs/files/config.md](docs/files/config.md)
 
 ---
-Son Güncelleme: 2026-09-12
-Versiyon: 1.2.0
+Son Güncelleme: 2026-09-27
+Versiyon: 1.3.0

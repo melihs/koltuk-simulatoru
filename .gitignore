@@ -3,6 +3,10 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
 reports/
 .DS_Store
 profiles/*.yaml

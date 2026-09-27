@@ -10,11 +10,14 @@ görülmemesini sağlar.
 
 | Ad | Tip | Zorunlu | Varsayılan | Açıklama |
 |----|-----|---------|------------|----------|
-| `value` | `float \| np.ndarray` | Evet | — | Dönüştürülecek skaler veya dizi |
+| `value` | `ArrayLike` | Evet | — | Dönüştürülecek skaler veya dizi |
 
 Her fonksiyon tek bir değer alır; dizi girdisinde eleman bazında çalışır.
 
 ## Çıkış
+
+Tüm fonksiyonlar `ArrayLike` alır ve `np.floating | np.ndarray` döndürür (skaler girdide
+0 boyutlu dizi, dizi girdide dizi).
 
 | Fonksiyon | Girdi | Çıktı |
 |---|---|---|
@@ -36,15 +39,19 @@ Proje içi modüller: yok — bu modül hiçbir şey import etmez, bağımlılı
 
 ## Kullanım kuralı
 
-Bu modül **yalnızca** şu sınırlarda çağrılır:
+Mimarinin "**TEK DÖNÜŞÜM NOKTASI**" dediği modül budur. Kural şudur:
 
-- `config.py` — `config.yaml` okunurken cm/derece → SI
-- `frames.py` — koordinat dönüşümü içinde
-- `seatsim/ui/*` — ekrana yazarken SI → cm/derece
-- `report.py` — rapora yazarken SI → cm/derece
+> Projede cm/m veya derece/radyan çevrimi yalnızca burada (ve eksen sırasını da değiştiren
+> `frames.py` içinde) yapılır. Çekirdek modüllerin içinde **çıplak** `* 0.01`, `/ 100`,
+> `math.radians` veya `np.radians` görülmez.
 
-`geometry.py`, `loads.py`, `dynamics.py` gibi çekirdek modüller bu modülü import **etmez**.
-Bu kural `/quality-check` adım 6 (mimari uygunluk) tarafından denetlenir.
+Kural, dönüşümün **dağılmamasıdır** — çekirdek modüllerin bu modülü import etmemesi değil.
+`geometry.py`, `loads.py` ve `bodies.py` bu modülü import **eder** ve etmelidir; yasak
+olan, aynı işi elle yapmaktır.
+
+Bu ayrım önemli: modülün docstring'i bir süre "çekirdek modüller bu modülü import etmez"
+diyordu ve bu **gerçeğe aykırıydı** — ileride birini yanlış yöne iter. `/quality-check`
+adım 6 çıplak dönüşümleri denetler.
 
 ## Kod Örneği
 
@@ -60,5 +67,5 @@ Vektör dönüşümü için `frames.to_internal()` kullanılır — o hem ölçe
 değiştirir. Bu modül yalnızca ölçek değiştirir, eksen sırasına dokunmaz.
 
 ---
-Son Güncelleme: 2026-09-11
-Versiyon: 1.0.0
+Son Güncelleme: 2026-09-27
+Versiyon: 1.1.0

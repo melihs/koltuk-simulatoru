@@ -54,6 +54,7 @@ Sonuç **çağrı sırasından bağımsızdır**: dal montajda sabitlenmiştir (
 | `suggest_stop_heights_cm(target_deg)` | Her takozun hedef açıda devreye girmesi için gereken üst yüzey yüksekliği, cm |
 | `stop_engagement_deg()` | Her takozun **gerçekte** hangi açıda devreye girdiği + konumu ve yönü |
 | `branch_sign` | `(2,)` — montajın sabit dal işareti, nötrden türetilir |
+| `target_report(check_collision, with_limits)` | `(met, detail)` — hedef kısıtların sağlanıp sağlanmadığı. **UCUZDUR**: yalnızca 8 ters kinematik çağrısı, ızgara taramaz. Arayüz "KISIT İHLALİ" uyarısını her çizimde bundan üretir; `with_limits=True` ise "ulaşılan" sütununa 0,1° adımlı tarama sonucu yazılır (~5 s, varsayılan kapalı) |
 
 Modül düzeyinde iki yardımcı (arayüzün renk/efsane üretmesi için):
 
@@ -94,7 +95,7 @@ Modül düzeyinde iki yardımcı (arayüzün renk/efsane üretmesi için):
 | `DEAD_POINT` | Krank ölü noktası | Transmisyon açısı marjı `deadpoint_margin_deg` altında |
 | `ROD_END_ANGLE` | Rot başı açısı | Küresel mafsal sapma limiti aşıldı |
 | `GIMBAL_ANGLE` | Kardan mafsalı açısı | Toplam eğim `gimbal_max_deg` üstünde |
-| `COLLISION` | Çarpışma | **Hareketli** bir gövde içeren bir çiftin mesafesi `clearance_min_cm` altında. Statik ↔ statik çiftler buraya girmez — onlar poza bağlı olmayan montaj sorunudur, bkz. [collision.md](collision.md) |
+| `COLLISION` | Çarpışma | **Hareketli** bir gövde içeren bir çiftin mesafesi `clearance_min_cm` altında. Statik ↔ statik çiftler buraya girmez — onlar poza bağlı olmayan montaj sorunudur, bkz. [collision.md](collision.md). Ön eleme ve kesme eşiği `clearance_min`'den **türetilir** (`max(0.05, 3·clearance_min)`); sabit 5 cm bırakmak, `clearance_min` 5 cm'i aştığında gerçek ihlalleri sessizce atlardı |
 | `MECH_STOP` | Mekanik takoz | Plaka alt yüzeyi bir takoza değdi |
 | `POT_RANGE` | Pot aralığı | Krank açısı potun mekanik aralığını aşıyor — **pot kırılır** |
 
@@ -289,5 +290,5 @@ for s in mech.stop_engagement_deg():
 ```
 
 ---
-Son Güncelleme: 2026-09-12
-Versiyon: 2.1.0
+Son Güncelleme: 2026-09-27
+Versiyon: 2.2.0

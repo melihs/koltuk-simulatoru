@@ -59,6 +59,10 @@ rakamlara güvenmeye karar verdiği yer.
 
 ### 3. Isı haritaları
 
+**Düğme arkasında** — senaryo kaydırıcılarını her oynatışta yeniden hesaplanmaz; tasarım
+veya senaryo değişince "bayat" olarak işaretlenir. Gerekçe: [Common.md](Common.md),
+`expensive_result()`.
+
 Yan yana iki harita, yalnızca **uygun** pozlarda doldurulur (ulaşılamayan açılar boş kalır):
 
 - Motor torku (iki motorun en kötüsü)
@@ -66,8 +70,10 @@ Yan yana iki harita, yalnızca **uygun** pozlarda doldurulur (ulaşılamayan aç
 
 ### 4. En kötü durum kartı
 
-Düğmeye basılınca tüm uygun pozlar × tüm senaryolar taranır (~40 s, sonuç önbelleğe
-alınır). Başlangıç tasarımında çıkan sonuç:
+Düğmeye basılınca tüm uygun pozlar × tüm senaryolar taranır (~20 s, sonuç önbelleğe
+alınır). Taranacak kütleler ve açı aralığı `config.yaml`'dan gelir
+(`mass.user_sweep_kg`, `targets`) — bkz. `SweepSpec.from_config`. Başlangıç tasarımında
+çıkan sonuç:
 
 > 🟠 **SINIRDA**
 >
@@ -129,5 +135,5 @@ loads_tab.render(st.session_state.cfg)
 ```
 
 ---
-Son Güncelleme: 2026-09-12
-Versiyon: 1.1.0
+Son Güncelleme: 2026-09-27
+Versiyon: 1.2.0

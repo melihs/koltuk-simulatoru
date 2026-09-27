@@ -109,7 +109,7 @@ Ayrıntı ve işaret tanımları: [frames.md](files/frames.md).
 | `optimize.py` | NSGA-II Pareto, tek amaçlı DE, duyarlılık analizi | 4 |
 | `cueing.py` | Motion cueing filtreleri, test profilleri, CSV telemetri | 5 |
 | `report.py` | Markdown + PDF rapor, atölye ölçü listesi, 2D çizimler | 6 |
-| `ui/common.py` | Mesh üretimi, bildirimsel parametre editörü, durum rozetleri | 1 |
+| `ui/common.py` | Mesh üretimi, bildirimsel parametre editörü, durum rozetleri, pahalı hesapların kapısı — [Common.md](components/Common.md) | 1 |
 | `ui/design_tab.py` | Tasarım sekmesi — [DesignTab.md](components/DesignTab.md) | 1 |
 | `ui/workspace_tab.py` | Çalışma alanı sekmesi — [WorkspaceTab.md](components/WorkspaceTab.md) | 1 |
 | `ui/loads_tab.py` | Yükler sekmesi — [LoadsTab.md](components/LoadsTab.md) | 2 |
@@ -186,7 +186,27 @@ Bilinçli muafiyetler: `C408` (`dict(...)` kwarg biçimi okunurluğu artırıyor
 - **Çapraz doğrulama:** iki bağımsız yöntem (doğrudan moment vs sanal iş/Jacobian) aynı
   torku vermeli. Ölçülen fark `9e-16` N·m.
 
-Toplam 153 test. Test dokümanları: `docs/tests/`.
+Toplam **231 test**, satır kapsamı **%94** (çekirdek modüller %96–100). Test dokümanları:
+`docs/tests/`.
+
+| Dosya | Test | Neyi korur |
+|---|---|---|
+| `test_geometry.py` | 53 | Kinematik, Jacobian, simetri, limitler, dal sabitliği |
+| `test_config.py` | 53 | Şema, doğrulama kuralları, gidiş-dönüş |
+| `test_loads.py` | 44 | Statik çözüm, çapraz doğrulama, ters sarkaç |
+| `test_collision.py` | 34 | Mesafe fonksiyonları ve hata sınırları |
+| `test_app.py` | 24 | Arayüzün baştan sona çalışması |
+| `test_frames.py` | 23 | Koordinat ve işaret sözleşmeleri |
+
+### Pahalı hesaplar arayüzde kapı arkasındadır
+
+Streamlit her etkileşimde tüm betiği (dolayısıyla tüm sekmeleri) yeniden çalıştırır.
+Çalışma alanı haritası ve tork haritası bu yüzden açık bir düğmeyle hesaplanır ve sonuç,
+üretildiği yapılandırmanın YAML metniyle birlikte oturum durumunda saklanır; tasarım
+değişince "bayat" işaretlenir ama silinmez. Ölçüldü: krank 4 → 7,5 değişiminde 41×41
+harita **900 saniyeyi aştı** — otomatik hesaplansaydı tek bir ölçü değişikliği arayüzü
+kilitlerdi. Ucuz olan "KISIT İHLALİ" tablosu (8 ters kinematik) her zaman görünür.
+Ayrıntı: [components/Common.md](components/Common.md).
 
 ### Çapraz doğrulama neden en değerli test
 
@@ -202,5 +222,5 @@ geçiriyor ve **9600 N·m** gibi fizik dışı torklar üretiyordu. Dal artık m
 sabitlenir. Ayrıntı: [files/geometry.md](files/geometry.md) — Adım 5.
 
 ---
-Son Güncelleme: 2026-09-12
-Versiyon: 1.1.0
+Son Güncelleme: 2026-09-27
+Versiyon: 1.2.0

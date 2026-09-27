@@ -17,15 +17,27 @@ kısıtların sağlanıp sağlanmadığını açıkça raporlar.
 
 ## Çıkış
 
-Kısıt tablosu + üç metrik + seçilen katmanın haritası + sebep açıklama tablosu + takoz
-paneli. Hesap `Mechanism.workspace_map()` çağrısıyla yapılır; sonuç `st.cache_data` ile
-**yapılandırmanın YAML metni üzerinden** anahtarlanarak önbelleklenir (`config.to_yaml()`
-— bkz. [config.md](../files/config.md)), yani parametre değişmedikçe yeniden hesaplanmaz.
+İki katmanlı: **ucuz** kısım her zaman, **pahalı** kısım düğme arkasında.
 
-Ölçülen süre: 41×41 için ~23 s (ilk hesap), sonrası önbellekten anında.
+| Kısım | Maliyet | Ne zaman |
+|---|---|---|
+| Kısıt tablosu + "KISIT İHLALİ" uyarısı | 8 ters kinematik, ~0,1 s | **Her zaman** |
+| Harita + metrikler + sebep tablosu + takoz paneli | 41×41 için ~23 s | "Haritayı hesapla" düğmesiyle |
 
-Metrik satırı: kullanılabilir açı kombinasyonu sayısı ve yüzdesi, maksimum pitch,
-maksimum roll.
+Kullanıcının en çok ihtiyaç duyduğu bilgi — hedeflerin sağlanıp sağlanmadığı — bir düğmenin
+arkasında kalmaz; `Mechanism.target_report()` bunu ızgara taramadan verir.
+
+Harita neden düğme arkasında: Streamlit her etkileşimde tüm sekmeleri yeniden çalıştırır.
+Otomatik hesaplansaydı, Tasarım sekmesinde bir ölçüyü değiştirmek — haritaya bakılmıyor
+olsa bile — uzun bir donma yaratırdı. **Ölçüldü: krank 4 → 7,5 değişiminde 41×41 harita
+900 saniyeyi aştı.** Bkz. [Common.md](Common.md), `expensive_result()`.
+
+Tasarım değişince sonuç **silinmez**, "bayat" olarak işaretlenir — eski harita görünmeye
+devam eder, yalnızca güncel olmadığı bilinir. Izgara ayarı değişirse hangi ayarla
+hesaplandığı yazılır.
+
+Metrik satırı (harita hesaplandıktan sonra): kullanılabilir açı kombinasyonu sayısı ve
+yüzdesi, maksimum pitch, maksimum roll.
 
 ## Katmanlar
 
@@ -107,5 +119,5 @@ workspace_tab.render(st.session_state.cfg)
 ```
 
 ---
-Son Güncelleme: 2026-09-12
-Versiyon: 1.1.0
+Son Güncelleme: 2026-09-27
+Versiyon: 1.2.0

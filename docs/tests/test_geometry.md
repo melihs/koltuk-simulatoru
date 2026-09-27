@@ -33,7 +33,8 @@ pytest sonucu. Test listesi:
 | `test_pure_pitch_cranks_equal` | `roll=0` için `θ_sağ == θ_sol`, 15 farklı pitch değerinde | `1e-12` |
 | `test_pure_roll_cranks_opposite_sign` | `pitch=0` için `θ_sağ` ve `θ_sol` **zıt işaretli**, ulaşılabilir roll aralığı boyunca | — |
 | `test_roll_mirror_symmetry` | `ik(0, +r).theta == ik(0, −r).theta[::-1]` — sağ/sol aynalama **tam** | `1e-12` |
-| `test_roll_antisymmetric_to_first_order` | Jacobian'ın roll kolonu tam antisimetrik: `J[0,1] == −J[1,1]` | `1e-12` |
+| `test_roll_antisymmetric_on_centre_plane` | `roll=0` düzleminde Jacobian'ın roll kolonu **tam** antisimetrik (`J[0,1] == −J[1,1]`) ve pitch kolonu tam simetrik — yalnızca nötrde değil, 6 farklı pitch değerinde | `1e-12` |
+| `test_roll_antisymmetry_breaks_off_centre` | `roll ≠ 0`'da özdeşlik **bozulur**. Testin amacı, kuralın nerede geçerli olmadığını da sabitlemek — ileride yanlış yere genellenmesin | — |
 | `test_roll_magnitudes_converge_at_small_angle` | Roll 1°'de `\|θ_sağ\|` ve `\|θ_sol\|` %0,5 içinde | — |
 
 Bu testler mekanizmanın tanımdaki en temel davranışını sabitler: *"İki krank aynı yöne
@@ -141,5 +142,5 @@ uv run pytest tests/test_geometry.py -k regression -v   # sadece regresyon testl
 ```
 
 ---
-Son Güncelleme: 2026-09-12
-Versiyon: 2.0.0
+Son Güncelleme: 2026-09-27
+Versiyon: 2.1.0

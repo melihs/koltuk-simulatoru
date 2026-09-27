@@ -30,8 +30,12 @@ sabitlenip sabitlenmediğini taşır. Tasarım profillerinin karşılaştırılm
 | `SeatConfig.free_parameters()` | `locked=False` olan, Faz 4'te optimize edilebilir parametreler |
 
 Hatalar: dosya yoksa `FileNotFoundError`; şema uyuşmazlığında `ValueError` (dosya adı
-mesaja eklenir); kök bir sözlük değilse `TypeError`. `validate()` hata **fırlatmaz**,
-sorun listesi döndürür.
+mesaja eklenir); kök bir sözlük değilse `TypeError`.
+
+**`validate()` hiçbir koşulda istisna fırlatmaz** — bu bir sözleşmedir ve
+`tests/test_config.py` ile korunur. Arayüz bu fonksiyonu her çizimde korumasız çağırır;
+fırlatması sayfanın tamamını çökertir. (Sıfır krank boyu bir kez `ZeroDivisionError`
+üretmişti; şimdi bölmeye girilmeden ERROR olarak bildiriliyor.)
 
 `to_yaml()` neden var: Streamlit'in `st.cache_data` önbelleği hashlenebilir bir anahtar
 ister; `SeatConfig` bir dataclass ağacı olduğu için hashlenemez. Arayüz, pahalı
@@ -63,6 +67,18 @@ Değerler `config.yaml`'da **cm ve derece** cinsindendir. `load()` bunları SI'y
 | `crank.length_cm` | `4.0` | |
 | `crank.neutral_offset_deg` | `0.0` | Nötrde krankın yataydan sapması. 0 = tam yatay, arkaya bakıyor |
 | `rod.length_cm` | `5.5` | Rot başı merkezleri arası |
+
+### `collision`
+
+| Anahtar | Varsayılan | Açıklama |
+|---|---|---|
+| `samples` | `16` | Kapsül–kutu ve kutu–kutu kaba örnekleme sayısı |
+| `exclude_pairs` | 27 çift | Birbirine **bağlı** parçalar; temas etmeleri normaldir |
+
+`exclude_pairs` varsayılanı `config.py` içindeki `_DEFAULT_EXCLUDE_PAIRS` sabitinde
+`config.yaml` ile **aynı** tutulur. Ayrışırlarsa `config.yaml` silindiğinde program
+hiçbir çifti hariç tutmaz, bağlı parçalar çarpışma sayılır ve çalışma alanı sıfıra düşer.
+`tests/test_config.py::test_load_defaults_match_dataclass` bunu korur.
 
 ### `hardware` — TAHMİNİ (motorlar elde olduğunda ölçülmeli)
 
@@ -148,6 +164,12 @@ crank:
 Kısa biçim (`length_cm: 4.0`) `locked: false`, `confidence: TASARIM` anlamına gelir.
 Arayüzdeki "sabitle (elimde var)" kutusu bu alanı yazar.
 
+İzin verilen alt anahtarlar: `value`, `locked`, `confidence`, `note`, `how_to_measure`.
+**Bilinmeyen bir alt anahtar açık bir `ValueError` verir.** Eskiden böyle bir blok "uzun
+biçim değil" sayılıp sözlüğün tamamı değer olarak yazılıyordu; `validate()` sonra
+`TypeError` ile çöküyor ve sayfa kapanıyordu. Bir yazım hatası (`lock:`, `notes:`) bu
+yola giriyordu.
+
 ## Doğrulama kuralları
 
 `validate()` şunları denetler ve **hata fırlatmaz, listeler**:
@@ -155,7 +177,8 @@ Arayüzdeki "sabitle (elimde var)" kutusu bu alanı yazar.
 | Ağırlık | Kural |
 |---|---|
 | `ERROR` | Negatif uzunluk, sıfır krank/çubuk boyu, `carried_fraction ∉ [0,1]` |
-| `ERROR` | Nötr pozda `\|P − C\| ≠ rod.length_cm` (geometri kendi içinde tutarsız) |
+| `ERROR` | Nötr pozda `\|P − C\| ≠ rod.length_cm` (geometri kendi içinde tutarsız). Mesafe **3 boyutlu** ölçülür: yalnızca (y, z) bakmak, mafsalın x/z kaymasını ve bağlantı ile milin yanal farkını gözden kaçırırdı — tam da bu kontrolün uyardığı durumu |
+| `ERROR` | `stops.top_height_cm` uzunluğu takoz sayısıyla uyuşmuyor (`heights()` sonradan `ValueError` atıp "Geometri kurulamadı" diye görünürdü) |
 | `WARN` | Toplam yükseklik `limits.total_height_max_cm`'i aşıyor |
 | `WARN` | Çubuk/krank oranı < 2 (ölü noktaya yakın çalışma, [FINDINGS.md](../FINDINGS.md) A1) |
 | `WARN` | Motor mili üst plaka izdüşümünün dışında |
@@ -192,5 +215,5 @@ config.save(cfg, "profiles/crank7.yaml")
 ```
 
 ---
-Son Güncelleme: 2026-09-12
-Versiyon: 1.2.0
+Son Güncelleme: 2026-09-27
+Versiyon: 1.3.0

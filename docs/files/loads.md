@@ -31,6 +31,15 @@ raporlar.
 | `com_fore_aft_m` | `float` | m | `0.0` | + = ileri |
 | `com_lateral_m` | `float` | m | `0.0` | + = sağ |
 
+### `SweepSpec.from_config(cfg)`
+
+Tarama boyutlarını `config.yaml`'dan türetir: kullanıcı kütleleri `mass.user_sweep_kg`'den,
+poz ızgarası `targets.pitch_deg` / `targets.roll_deg`'in 1,2 katından 21 adımda.
+`worst_case()` `sweep` verilmediğinde bunu kullanır.
+
+Önceden bu sayılar `SweepSpec` içinde sabitti; `mass.user_sweep_kg` dokümanda tanımlı ama
+**hiçbir yerde okunmayan** ölü bir parametreydi — kullanıcı değiştirir, hiçbir şey olmazdı.
+
 ### `worst_case(mech, sweep, *, check_collision=True, progress=None)`
 
 | Ad | Tip | Zorunlu | Varsayılan | Açıklama |
@@ -74,6 +83,10 @@ raporlar.
 | `at_scenario` | Hangi `MassScenario` |
 | `min_safety_factor` | |
 | `verdict` | `"YETERLI"` (SF≥2) \| `"SINIRDA"` (1,5–2) \| `"YETERSIZ"` (<1,5) |
+
+Taramada **hiçbir** poz/senaryo çözülemezse (hepsi tekil) `verdict` `"YETERSIZ"` olur ve
+açıklama sebebini yazar. Eskiden `min_safety_factor` sonsuz kaldığı için yeşil bir
+"Motor en kötü durumda bile inf kat pay bırakıyor" gösteriliyordu.
 | `explanation_tr` | Sade Türkçe açıklama |
 | `max_rod_tension_n` / `max_rod_compression_n` | |
 | `max_gimbal_force_n` / `max_gimbal_post_bending_nm` | |
@@ -293,5 +306,5 @@ print(wc.explanation_tr)
 ```
 
 ---
-Son Güncelleme: 2026-09-12
-Versiyon: 1.1.0
+Son Güncelleme: 2026-09-27
+Versiyon: 1.2.0
